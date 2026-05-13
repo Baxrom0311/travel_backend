@@ -75,6 +75,9 @@ urlpatterns = [
     # Core (home, overview, search)
     path('api/', include('core.urls')),
 
+    # Auth
+    path('api/auth/', include('users.urls')),
+
     # Domain apps
     path('api/', include('hotels.urls')),
     path('api/transport/', include('transport.urls_v2')),

@@ -46,9 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third party
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'drf_spectacular',
     # Local apps
+    'users',
     'core',
     'hotels',
     'transport',
@@ -61,6 +64,8 @@ INSTALLED_APPS = [
     'reviews',
     'newsletter',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 # ═══════════════════════════════════════════════════════════════
 # MIDDLEWARE (WhiteNoise after SecurityMiddleware)
@@ -170,6 +175,10 @@ if DEBUG:
     REST_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
@@ -183,7 +192,28 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'contact': config('CONTACT_THROTTLE_RATE', default='5/hour'),
+        'login': config('LOGIN_THROTTLE_RATE', default='10/hour'),
+        'register': config('REGISTER_THROTTLE_RATE', default='5/hour'),
     },
+}
+
+# ═══════════════════════════════════════════════════════════════
+# JWT
+# ═══════════════════════════════════════════════════════════════
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
 
 SPECTACULAR_SETTINGS = {
