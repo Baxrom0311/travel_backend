@@ -1,0 +1,561 @@
+[
+  {
+    "model": "hotels.amenity",
+    "pk": 1,
+    "fields": {
+      "name_uz": "Bepul WiFi",
+      "name_en": "Free WiFi",
+      "name_ru": "Бесплатный WiFi",
+      "icon": "📶"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 2,
+    "fields": {
+      "name_uz": "Restoran",
+      "name_en": "Restaurant",
+      "name_ru": "Ресторан",
+      "icon": "🍽️"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 3,
+    "fields": {
+      "name_uz": "Parking",
+      "name_en": "Parking",
+      "name_ru": "Парковка",
+      "icon": "🅿️"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 4,
+    "fields": {
+      "name_uz": "Konditsioner",
+      "name_en": "AC",
+      "name_ru": "Кондиционер",
+      "icon": "❄️"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 5,
+    "fields": {
+      "name_uz": "SPA",
+      "name_en": "SPA",
+      "name_ru": "СПА",
+      "icon": "💆"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 6,
+    "fields": {
+      "name_uz": "Fitness markaz",
+      "name_en": "Fitness",
+      "name_ru": "Фитнес",
+      "icon": "🏋️"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 7,
+    "fields": {
+      "name_uz": "Basseyn",
+      "name_en": "Pool",
+      "name_ru": "Бассейн",
+      "icon": "🏊"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 8,
+    "fields": {
+      "name_uz": "Bar",
+      "name_en": "Bar",
+      "name_ru": "Бар",
+      "icon": "🍸"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 9,
+    "fields": {
+      "name_uz": "Sauna",
+      "name_en": "Sauna",
+      "name_ru": "Сауна",
+      "icon": "🧖"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 10,
+    "fields": {
+      "name_uz": "Velosiped",
+      "name_en": "Bike Rental",
+      "name_ru": "Аренда велосипеда",
+      "icon": "🚲"
+    }
+  },
+  {
+    "model": "hotels.amenity",
+    "pk": 11,
+    "fields": {
+      "name_uz": "Terassa",
+      "name_en": "Terrace",
+      "name_ru": "Терраса",
+      "icon": "🌿"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 1,
+    "fields": {
+      "name": "Khorezm Palace Hotel",
+      "city": "urgench",
+      "stars": 4,
+      "rating": 8.8,
+      "price_per_night": 350000,
+      "address": "Urganch shahri",
+      "latitude": 41.5504,
+      "longitude": 60.6301,
+      "google_maps_url": "https://maps.app.goo.gl/554fFxF7zXLTqcrR6",
+      "description_uz": "Oilaviy xonalar, konditsioner, xususiy hammom va shahar manzarasi. Bepul WiFi va restoran mavjud.",
+      "description_en": "Family rooms with air-conditioning, private bathrooms and city views. Free WiFi and restaurant available.",
+      "description_ru": "Семейные номера с кондиционером, ванной и видом на город. Бесплатный WiFi и ресторан.",
+      "amenities": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "is_featured": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 2,
+    "fields": {
+      "name": "Antalya Grand Palace",
+      "city": "urgench",
+      "stars": 5,
+      "rating": 9.1,
+      "price_per_night": 550000,
+      "address": "Urganch, aeroportdan 5 km",
+      "latitude": 41.553,
+      "longitude": 60.618,
+      "google_maps_url": "https://maps.app.goo.gl/cbTmbaE5VaowuUcp8",
+      "description_uz": "Spa, fitnes markazi, restoran va bepul parkovka. Turk va xalqaro oshxona.",
+      "description_en": "Spa, fitness center, restaurant and free parking. Turkish and international cuisine.",
+      "description_ru": "Спа, фитнес-центр, ресторан и бесплатная парковка. Турецкая и международная кухня.",
+      "amenities": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "is_featured": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 3,
+    "fields": {
+      "name": "Turkezm Hotel",
+      "city": "urgench",
+      "stars": 4,
+      "rating": 8.6,
+      "price_per_night": 320000,
+      "address": "Urganch, aeroportdan 4 km",
+      "latitude": 41.558,
+      "longitude": 60.625,
+      "google_maps_url": "https://maps.app.goo.gl/Bc4iSmTaK27KmQvs7",
+      "description_uz": "Balkon, ish stoli, shkaf bilan jihozlangan xonalar. Kontinental nonushta.",
+      "description_en": "Rooms with balcony, work desk and wardrobe. Continental breakfast.",
+      "description_ru": "Номера с балконом, рабочим столом и гардеробом. Континентальный завтрак.",
+      "amenities": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "is_featured": false,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 4,
+    "fields": {
+      "name": "Horizon Haven Hotel",
+      "city": "urgench",
+      "stars": 4,
+      "rating": 9.0,
+      "price_per_night": 480000,
+      "address": "Urganch, aeroportdan 3 km",
+      "latitude": 41.562,
+      "longitude": 60.632,
+      "google_maps_url": "https://maps.app.goo.gl/NdKmgVqTtcwYLLKg6",
+      "description_uz": "Ichki basseyn, fitnes markazi va bepul velosipedlar. Bufet nonushta.",
+      "description_en": "Indoor pool, fitness center and free bicycles. Buffet breakfast.",
+      "description_ru": "Крытый бассейн, фитнес-центр и бесплатные велосипеды. Завтрак-буфет.",
+      "amenities": [
+        1,
+        6,
+        7,
+        9,
+        10
+      ],
+      "is_featured": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 5,
+    "fields": {
+      "name": "Hotel KARAVAN",
+      "city": "urgench",
+      "stars": 4,
+      "rating": 8.9,
+      "price_per_night": 400000,
+      "address": "Urganch shahri",
+      "latitude": 41.549,
+      "longitude": 60.64,
+      "google_maps_url": "https://maps.app.goo.gl/56Ps7NBZrUwj4r4F8",
+      "description_uz": "Ko'l, bog' yoki shahar manzarali xonalar. Turli oshxona: pizza, steakhouse, osiyo taomlar.",
+      "description_en": "Rooms with lake, garden or city views. Varied cuisine: pizza, steakhouse, Asian dishes.",
+      "description_ru": "Номера с видом на озеро, сад или город. Разнообразная кухня.",
+      "amenities": [
+        1,
+        2,
+        3,
+        6,
+        8,
+        9
+      ],
+      "is_featured": false,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 6,
+    "fields": {
+      "name": "Farovon Khiva Hotel",
+      "city": "khiva",
+      "stars": 5,
+      "rating": 9.4,
+      "price_per_night": 750000,
+      "address": "Xiva shahri, Ichan-qal'a yaqini",
+      "latitude": 41.3783,
+      "longitude": 60.3631,
+      "google_maps_url": "https://maps.app.goo.gl/sA2otHTLV9bfiS1b6",
+      "description_uz": "5 yulduzli mehmonxona. Spa, wellness markazi, sauna, fitnes va ichki basseyn.",
+      "description_en": "5-star hotel. Spa, wellness center, sauna, fitness and indoor pool. Halal cuisine.",
+      "description_ru": "5-звёздочный отель. Спа, велнес-центр, сауна, фитнес и крытый бассейн.",
+      "amenities": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        9
+      ],
+      "is_featured": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 7,
+    "fields": {
+      "name": "Arkanchi Boutique Hotel",
+      "city": "khiva",
+      "stars": 4,
+      "rating": 9.2,
+      "price_per_night": 450000,
+      "address": "Xiva, Ichan-qal'a ichida",
+      "latitude": 41.379,
+      "longitude": 60.362,
+      "google_maps_url": "https://maps.app.goo.gl/kbXWdVFvX81c4nky7",
+      "description_uz": "Boutique mehmonxona. Fitnes, sauna, konferens zali. Mahalliy oshxona.",
+      "description_en": "Boutique hotel with fitness, sauna, conference hall. Local cuisine.",
+      "description_ru": "Бутик-отель с фитнесом, сауной, конференц-залом. Местная кухня.",
+      "amenities": [
+        1,
+        2,
+        6,
+        8,
+        9,
+        10
+      ],
+      "is_featured": true,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 8,
+    "fields": {
+      "name": "Ulli Oy Boutique Hotel & Terrace",
+      "city": "khiva",
+      "stars": 4,
+      "rating": 9.3,
+      "price_per_night": 420000,
+      "address": "Xiva, tinch ko'cha",
+      "latitude": 41.38,
+      "longitude": 60.365,
+      "google_maps_url": "https://maps.app.goo.gl/XPhAMnH3HZoQdgRNA",
+      "description_uz": "Xovli va terassa bilan qulay boutique mehmonxona. Ichan-qal'a yaqinida.",
+      "description_en": "Cosy boutique hotel with courtyard and terrace. Close to Ichan-Qala.",
+      "description_ru": "Уютный бутик-отель с двориком и террасой. Рядом с Ичан-калой.",
+      "amenities": [
+        1,
+        2,
+        11
+      ],
+      "is_featured": false,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 9,
+    "fields": {
+      "name": "Isakhoja Boutique Hotel",
+      "city": "khiva",
+      "stars": 3,
+      "rating": 8.8,
+      "price_per_night": 280000,
+      "address": "Xiva shahri",
+      "latitude": 41.377,
+      "longitude": 60.364,
+      "google_maps_url": "https://maps.app.goo.gl/xvw12JCXfePipWdC7",
+      "description_uz": "Xususiy hammom, konditsioner va zamonaviy jihozlar. Halol va vegetarian taomlar.",
+      "description_en": "Private bathroom, air-conditioning. Halal and vegetarian options.",
+      "description_ru": "Собственная ванная, кондиционер. Халяль и вегетарианские варианты.",
+      "amenities": [
+        1,
+        2,
+        4,
+        11
+      ],
+      "is_featured": false,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "hotels.hotel",
+    "pk": 10,
+    "fields": {
+      "name": "Muso To'ra",
+      "city": "khiva",
+      "stars": 3,
+      "rating": 8.5,
+      "price_per_night": 200000,
+      "address": "Xiva shahri",
+      "latitude": 41.376,
+      "longitude": 60.361,
+      "google_maps_url": "https://maps.app.goo.gl/8bA23MHfz3TSfCRA9",
+      "description_uz": "Bog', terassa va bar mavjud. Halol va vegetarian osiyo oshxonasi.",
+      "description_en": "Garden, terrace and bar. Halal and vegetarian Asian cuisine.",
+      "description_ru": "Сад, терраса и бар. Халяльная и вегетарианская азиатская кухня.",
+      "amenities": [
+        1,
+        2,
+        8,
+        11
+      ],
+      "is_featured": false,
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "transport.transportroute",
+    "pk": 1,
+    "fields": {
+      "transport_type": "taxi",
+      "icon": "🚕",
+      "from_location_uz": "Urganch xalqaro aeroporti",
+      "from_location_en": "Urgench International Airport",
+      "from_location_ru": "Аэропорт Ургенча",
+      "to_location_uz": "Xiva markazi",
+      "to_location_en": "Khiva City Center",
+      "to_location_ru": "Центр Хивы",
+      "duration_min": 30,
+      "duration_max": 40,
+      "price_min": 30000,
+      "price_max": 50000,
+      "badge_uz": "Tavsiya etiladi",
+      "badge_en": "Recommended",
+      "badge_ru": "Рекомендуется",
+      "badge_style": "recommended",
+      "description_uz": "Eng qulay usul. Yandex Go ilovasi yoki aeroportdagi taksi stoyankasidan buyurtma qiling.",
+      "description_en": "Most convenient. Order via Yandex Go app or airport taxi stand.",
+      "description_ru": "Самый удобный вариант. Яндекс Go или стоянка такси у аэропорта.",
+      "order": 1
+    }
+  },
+  {
+    "model": "transport.transportroute",
+    "pk": 2,
+    "fields": {
+      "transport_type": "bus",
+      "icon": "🚌",
+      "from_location_uz": "Aeroportdan chiqish",
+      "from_location_en": "Airport Exit",
+      "from_location_ru": "Выход из аэропорта",
+      "to_location_uz": "Xiva avtobekat",
+      "to_location_en": "Khiva Bus Stop",
+      "to_location_ru": "Автостанция Хивы",
+      "duration_min": 45,
+      "duration_max": 60,
+      "price_min": 3000,
+      "price_max": 5000,
+      "badge_uz": "Byudjetli",
+      "badge_en": "Budget",
+      "badge_ru": "Бюджетно",
+      "badge_style": "budget",
+      "description_uz": "Eng arzon usul. Urganch–Xiva yo'nalishidagi marshrutka.",
+      "description_en": "Most budget-friendly. Urgench–Khiva minibus from airport exit.",
+      "description_ru": "Самый бюджетный. Маршрутка Ургенч–Хива от выхода из аэропорта.",
+      "order": 2
+    }
+  },
+  {
+    "model": "transport.transportroute",
+    "pk": 3,
+    "fields": {
+      "transport_type": "train",
+      "icon": "🚆",
+      "from_location_uz": "Urganch temir yo'l vokzali",
+      "from_location_en": "Urgench Railway Station",
+      "from_location_ru": "Вокзал Ургенча",
+      "to_location_uz": "Xiva stansiyasi",
+      "to_location_en": "Khiva Station",
+      "to_location_ru": "Станция Хива",
+      "duration_min": 35,
+      "duration_max": 35,
+      "price_min": 35000,
+      "price_max": 35000,
+      "badge_uz": "Qulay",
+      "badge_en": "Comfort",
+      "badge_ru": "Комфорт",
+      "badge_style": "comfort",
+      "description_uz": "Zamonaviy tez poyezd. Aeroportdan avval vokzalga boring (taksi ~15 daqiqa).",
+      "description_en": "Modern high-speed train. First take taxi to Urgench station (~15 min from airport).",
+      "description_ru": "Скоростной поезд. Сначала доехать до вокзала Ургенча (такси ~15 мин).",
+      "order": 3
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 1,
+    "fields": {
+      "name_uz": "Kalta Minor",
+      "name_en": "Kalta Minor",
+      "name_ru": "Кальта Минар",
+      "icon": "🟦",
+      "description_uz": "Tugallanmagan ko'k minora — Xivaning ramzi. Ulkan minora qurilishi to'xtatib qoldirilgan.",
+      "description_en": "Unfinished blue minaret — symbol of Khiva. Construction was halted mid-way.",
+      "description_ru": "Незаконченный синий минарет — символ Хивы.",
+      "latitude": 41.378,
+      "longitude": 60.363,
+      "is_featured": true,
+      "order": 1
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 2,
+    "fields": {
+      "name_uz": "Ko'hna Ark",
+      "name_en": "Kuhna Ark Palace",
+      "name_ru": "Кухна Арк",
+      "icon": "🏰",
+      "description_uz": "Xonlar yashagan qarorgoh, zindon va shaharning panoramik manzarasi.",
+      "description_en": "Palace of khans, dungeon and panoramic view of the city.",
+      "description_ru": "Дворец ханов, темница и панорамный вид на город.",
+      "latitude": 41.3788,
+      "longitude": 60.3618,
+      "is_featured": true,
+      "order": 2
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 3,
+    "fields": {
+      "name_uz": "Juma Masjidi",
+      "name_en": "Juma Mosque",
+      "name_ru": "Пятничная мечеть",
+      "icon": "🕌",
+      "description_uz": "218 ta o'ymakor ustunli noyob meʼmorchilik yodgorligi.",
+      "description_en": "Unique mosque with 218 carved wooden columns.",
+      "description_ru": "Уникальная мечеть с 218 резными деревянными колоннами.",
+      "latitude": 41.3783,
+      "longitude": 60.3625,
+      "is_featured": true,
+      "order": 3
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 4,
+    "fields": {
+      "name_uz": "Islom Xo'ja Minorasi",
+      "name_en": "Islam Khodja Minaret",
+      "name_ru": "Минарет Ислама Ходжи",
+      "icon": "🗼",
+      "description_uz": "Xivaning eng baland nuqtasi va ramzi. Tepa qismida panoramik manzara.",
+      "description_en": "The highest point and symbol of Khiva with panoramic views.",
+      "description_ru": "Высшая точка и символ Хивы с панорамным видом.",
+      "latitude": 41.379,
+      "longitude": 60.364,
+      "is_featured": true,
+      "order": 4
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 5,
+    "fields": {
+      "name_uz": "Ota Darvoza",
+      "name_en": "Ota Gate",
+      "name_ru": "Ворота Ота",
+      "icon": "🚪",
+      "description_uz": "Ichan-qal'aning asosiy va eng mashhur kirish darvozasi.",
+      "description_en": "Main entrance gate of Ichan-Qala, the most famous.",
+      "description_ru": "Главные ворота Ичан-калы, самые известные.",
+      "latitude": 41.3775,
+      "longitude": 60.3622,
+      "is_featured": false,
+      "order": 5
+    }
+  },
+  {
+    "model": "attractions.attraction",
+    "pk": 6,
+    "fields": {
+      "name_uz": "Polvon Darvoza",
+      "name_en": "Palvan Gate",
+      "name_ru": "Ворота Палвана",
+      "icon": "🚪",
+      "description_uz": "Sharqiy darvoza — qadimda bu yerdan karvonlar o'tgan.",
+      "description_en": "Eastern gate — caravans passed through here in ancient times.",
+      "description_ru": "Восточные ворота — здесь проходили древние каравaны.",
+      "latitude": 41.3792,
+      "longitude": 60.3652,
+      "is_featured": false,
+      "order": 6
+    }
+  }
+]
