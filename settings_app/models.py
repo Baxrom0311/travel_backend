@@ -94,5 +94,5 @@ class SiteSettings(models.Model):
         if cached:
             return cached
         obj, _ = cls.objects.get_or_create(pk=1)
-        cache.set('site_settings', obj, 60 * 5)  # 5 minutes
+        cache.set('site_settings', obj, 30)  # 30 seconds
         return obj
