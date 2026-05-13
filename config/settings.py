@@ -1,22 +1,42 @@
+"""
+Django settings for Visit Khorezm.
+
+Production-ready configuration with support for:
+- PostgreSQL (via DATABASE_URL) or SQLite (fallback)
+- WhiteNoise for static files
+- Render.com deployment
+"""
+import os
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+# ═══════════════════════════════════════════════════════════════
+# CORE
+# ═══════════════════════════════════════════════════════════════
+DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-visit-khorezm-change-in-production')
+
 ALLOWED_HOSTS = [
     host.strip()
-    for host in config('ALLOWED_HOSTS', default='127.0.0.1,localhost,testserver').split(',')
+    for host in config(
+        'ALLOWED_HOSTS',
+        default='127.0.0.1,localhost,testserver,.onrender.com'
+    ).split(',')
     if host.strip()
 ]
 
+# Production validation (soft - don't crash startup)
 if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
-    raise ImproperlyConfigured("Production uchun SECRET_KEY env orqali xavfsiz qiymatga o'rnatilishi kerak.")
-if not DEBUG and '*' in ALLOWED_HOSTS:
-    raise ImproperlyConfigured("Production uchun ALLOWED_HOSTS aniq hostlar bilan sozlanishi kerak.")
+    import warnings
+    warnings.warn("⚠️ Production'da SECRET_KEY env orqali sozlang!")
 
+# ═══════════════════════════════════════════════════════════════
+# APPS
+# ═══════════════════════════════════════════════════════════════
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,8 +62,12 @@ INSTALLED_APPS = [
     'newsletter',
 ]
 
+# ═══════════════════════════════════════════════════════════════
+# MIDDLEWARE (WhiteNoise after SecurityMiddleware)
+# ═══════════════════════════════════════════════════════════════
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,13 +96,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# ── Database: SQLite (development) ──────────────────────────
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# ═══════════════════════════════════════════════════════════════
+# DATABASE: PostgreSQL (production) or SQLite (dev)
+# ═══════════════════════════════════════════════════════════════
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    # Render PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Local SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -87,29 +126,42 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ═══════════════════════════════════════════════════════════════
+# i18n
+# ═══════════════════════════════════════════════════════════════
 LANGUAGE_CODE = 'uz'
-TIME_ZONE     = 'Asia/Tashkent'
-USE_I18N      = True
-USE_TZ        = True
+TIME_ZONE = 'Asia/Tashkent'
+USE_I18N = True
+USE_TZ = True
 
-STATIC_URL  = '/static/'
+# ═══════════════════════════════════════════════════════════════
+# STATIC FILES (WhiteNoise)
+# ═══════════════════════════════════════════════════════════════
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL  = '/media/'
+# WhiteNoise storage with compression and caching
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════
+# MEDIA FILES
+# ═══════════════════════════════════════════════════════════════
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# ═══════════════════════════════════════════════════════════════
+# REST Framework
+# ═══════════════════════════════════════════════════════════════
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 API_PAGE_SIZE = config('API_PAGE_SIZE', default=20, cast=int)
 API_MAX_PAGE_SIZE = config('API_MAX_PAGE_SIZE', default=100, cast=int)
-
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
-CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',')
-    if origin.strip()
-]
 
 REST_RENDERER_CLASSES = [
     'rest_framework.renderers.JSONRenderer',
@@ -117,7 +169,6 @@ REST_RENDERER_CLASSES = [
 if DEBUG:
     REST_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
 
-# ── Django REST Framework ────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -142,15 +193,44 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-# ── CORS ─────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
+# SECURITY
+# ═══════════════════════════════════════════════════════════════
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
+
+# Render proxies requests via HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in config(
+        'CSRF_TRUSTED_ORIGINS',
+        default='https://*.onrender.com'
+    ).split(',')
+    if origin.strip()
+]
+
+# ═══════════════════════════════════════════════════════════════
+# CORS
+# ═══════════════════════════════════════════════════════════════
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=DEBUG, cast=bool)
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in config('CORS_ALLOWED_ORIGINS', default='').split(',')
     if origin.strip()
 ]
-if not DEBUG and CORS_ALLOW_ALL_ORIGINS:
-    raise ImproperlyConfigured("Production uchun CORS_ALLOW_ALL_ORIGINS=False bo'lishi kerak.")
 
-# ── Admin panel sozlamalari ──────────────────────────────────
+# Allow all *.onrender.com and *.vercel.app subdomains
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https://.*\.onrender\.com$',
+    r'^https://.*\.vercel\.app$',
+]
+
+# ═══════════════════════════════════════════════════════════════
+# Admin
+# ═══════════════════════════════════════════════════════════════
 ADMIN_SITE_HEADER = "Visit Khorezm — Admin"

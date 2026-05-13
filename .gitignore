@@ -19,8 +19,9 @@ ENV/
 db.sqlite3
 db.sqlite3-journal
 /staticfiles/
-/media/
-!media/.gitkeep
+
+# Media: seed rasmlarini git'ga commit qilamiz (Render free plan uchun)
+# Production'da user uploaded fayllar persistent emas
 
 # Migrations - keep the files but ignore the __init__.py bytecode
 **/migrations/__pycache__/
