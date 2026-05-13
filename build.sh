@@ -69,10 +69,11 @@ if Restaurant.objects.count() == 0 or Tour.objects.count() == 0:
         print(f'  ⚠️  Extras skipped: {e}')
 
 # Superuser yaratish
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 if not User.objects.filter(is_superuser=True).exists():
     admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-    User.objects.create_superuser('admin', 'admin@visitkhorezm.uz', admin_password)
+    User.objects.create_superuser(email='admin@visitkhorezm.uz', password=admin_password, first_name='Admin')
     print(f'  ✅ Superuser admin created')
 "
 
