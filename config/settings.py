@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'tours',
     'reviews',
     'newsletter',
+    'settings_app',
 ]
 
 AUTH_USER_MODEL = 'users.User'
