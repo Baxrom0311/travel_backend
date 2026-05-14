@@ -24,7 +24,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in config(
         'ALLOWED_HOSTS',
-        default='127.0.0.1,localhost,testserver,.onrender.com'
+        default='127.0.0.1,localhost,testserver,.onrender.com,.code.run'
     ).split(',')
     if host.strip()
 ]
@@ -273,7 +273,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in config(
         'CSRF_TRUSTED_ORIGINS',
-        default='https://*.onrender.com'
+        default='https://*.onrender.com,https://*.code.run,https://*.vercel.app'
     ).split(',')
     if origin.strip()
 ]
