@@ -90,6 +90,7 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     path('api/newsletter/', include('newsletter.urls')),
     path('api/settings/', include('settings_app.urls')),
+    path('api/testimonials/', include('testimonials.urls')),
 ]
 
 if settings.DEBUG:
