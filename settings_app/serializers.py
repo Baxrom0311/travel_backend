@@ -4,51 +4,45 @@ from .models import SiteSettings, MAP_PROVIDERS
 
 # Map tile URLs and attributions
 MAP_PROVIDERS_CONFIG = {
-    'osm': {
-        'name': 'OpenStreetMap',
-        'url': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        'attribution': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        'max_zoom': 19,
-    },
     'carto_voyager': {
         'name': 'CartoDB Voyager',
-        'url': 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-        'attribution': '&copy; OpenStreetMap &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        'max_zoom': 20,
+        'url': 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        'attribution': '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+        'max_zoom': 19,
     },
     'carto_positron': {
         'name': 'CartoDB Positron',
-        'url': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        'attribution': '&copy; OpenStreetMap &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        'max_zoom': 20,
+        'url': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        'attribution': '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+        'max_zoom': 19,
     },
     'carto_dark': {
         'name': 'CartoDB Dark Matter',
-        'url': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        'attribution': '&copy; OpenStreetMap &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        'max_zoom': 20,
+        'url': 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        'attribution': '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+        'max_zoom': 19,
     },
     'stadia_alidade': {
         'name': 'Stadia Alidade Smooth',
-        'url': 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
-        'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; OpenStreetMap',
+        'url': 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png',
+        'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
         'max_zoom': 20,
     },
     'stadia_outdoors': {
         'name': 'Stadia Outdoors',
-        'url': 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png',
-        'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; OpenStreetMap',
+        'url': 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}.png',
+        'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>',
         'max_zoom': 20,
     },
     'stamen_toner': {
         'name': 'Stamen Toner',
-        'url': 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png',
+        'url': 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png',
         'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com/">Stamen Design</a>',
         'max_zoom': 20,
     },
     'stamen_terrain': {
         'name': 'Stamen Terrain',
-        'url': 'https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png',
+        'url': 'https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png',
         'attribution': '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com/">Stamen Design</a>',
         'max_zoom': 18,
     },
@@ -63,12 +57,6 @@ MAP_PROVIDERS_CONFIG = {
         'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
         'attribution': 'Tiles &copy; Esri',
         'max_zoom': 19,
-    },
-    'opentopo': {
-        'name': 'OpenTopoMap',
-        'url': 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-        'attribution': 'Map data: &copy; OpenStreetMap &copy; SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
-        'max_zoom': 17,
     },
 }
 
@@ -99,7 +87,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
         ]
 
     def _get_map_config(self, key: str) -> dict:
-        config = MAP_PROVIDERS_CONFIG.get(key, MAP_PROVIDERS_CONFIG['osm'])
+        config = MAP_PROVIDERS_CONFIG.get(key, MAP_PROVIDERS_CONFIG['carto_voyager'])
         return {'key': key, **config}
 
     def get_map(self, obj) -> dict:

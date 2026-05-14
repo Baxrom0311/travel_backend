@@ -3,8 +3,7 @@ from django.core.cache import cache
 
 
 MAP_PROVIDERS = [
-    ('osm', "OpenStreetMap (default, bepul)"),
-    ('carto_voyager', "CartoDB Voyager (chiroyli, bepul)"),
+    ('carto_voyager', "CartoDB Voyager (default, chiroyli)"),
     ('carto_positron', "CartoDB Positron (light, minimal)"),
     ('carto_dark', "CartoDB Dark Matter (dark theme)"),
     ('stadia_alidade', "Stadia Alidade Smooth (premium look)"),
@@ -13,7 +12,6 @@ MAP_PROVIDERS = [
     ('stamen_terrain', "Stamen Terrain (relief)"),
     ('esri_satellite', "Esri World Imagery (sun'iy yo'ldosh)"),
     ('esri_streets', "Esri World Street Map"),
-    ('opentopo', "OpenTopoMap (topografiya)"),
 ]
 
 
