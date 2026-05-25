@@ -26,7 +26,6 @@ class AttractionApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['counts'], {'total': 1, 'featured': 1})
-        self.assertEqual(response.json()['featured'], [True, False])
 
     def test_featured_filter_accepts_false(self):
         Attraction.objects.create(

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Hotel, HotelImage, Amenity, ContactMessage
+from .models import Hotel, HotelImage, Amenity, ContactMessage, Booking
 
 
 @admin.register(Amenity)
@@ -78,3 +78,12 @@ class ContactMessageAdmin(admin.ModelAdmin):
 admin.site.site_header = "🏛️ Visit Khorezm — Admin"
 admin.site.site_title  = "Visit Khorezm Admin"
 admin.site.index_title = "Boshqaruv paneli"
+
+
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ['guest_name', 'hotel', 'check_in', 'check_out', 'status', 'total_price', 'created_at']
+    list_filter = ['status', 'hotel__city']
+    search_fields = ['guest_name', 'guest_phone', 'hotel__name']
+    list_editable = ['status']
+    readonly_fields = ['created_at', 'updated_at', 'total_price']

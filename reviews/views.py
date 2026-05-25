@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.throttling import ScopedRateThrottle
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Avg, Count
 from .models import Review
@@ -19,6 +20,8 @@ class ReviewCreateView(generics.CreateAPIView):
     """POST /api/reviews/"""
     serializer_class = ReviewCreateSerializer
     queryset = Review.objects.none()
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'reviews'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Q, Count
 
 from utils.lang import LangMixin
+from utils.cache import PublicCacheMixin
 from utils.query_params import reject_unknown_query_params
 from .models import News
 from .serializers import NewsListSerializer, NewsDetailSerializer
@@ -14,7 +15,7 @@ class NewsFilterSerializer(serializers.Serializer):
     search = serializers.CharField(max_length=100, required=False)
 
 
-class NewsListView(LangMixin, generics.ListAPIView):
+class NewsListView(PublicCacheMixin, LangMixin, generics.ListAPIView):
     """GET /api/news/"""
     serializer_class = NewsListSerializer
 
@@ -44,6 +45,7 @@ class NewsDetailView(LangMixin, generics.RetrieveAPIView):
 
 @api_view(['GET'])
 def news_options(request):
+    reject_unknown_query_params(request.query_params, set())
     return Response({
         'success': True,
         'counts': News.objects.filter(is_published=True).aggregate(

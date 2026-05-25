@@ -61,8 +61,10 @@ class RestaurantListSerializer(serializers.ModelSerializer):
 
     def get_cover_image(self, obj):
         request = self.context.get('request')
-        img = obj.images.filter(is_cover=True).first() or obj.images.first()
-        if img and request:
+        imgs = obj.images.all()
+        cover = next((i for i in imgs if i.is_cover), None)
+        img = cover or (imgs[0] if imgs else None)
+        if img and img.image and request:
             return request.build_absolute_uri(img.image.url)
         return None
 

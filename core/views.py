@@ -87,6 +87,7 @@ def api_overview(request):
             'home': '/api/home/',
             'search': '/api/search/?q=...',
             'hotels': '/api/hotels/',
+            'hotel_availability': '/api/hotels/{id}/availability/?check_in=...&check_out=...',
             'amenities': '/api/amenities/',
             'transport': '/api/transport/',
             'attractions': '/api/attractions/',
@@ -97,44 +98,85 @@ def api_overview(request):
             'contact': '/api/contact/',
             'reviews': '/api/reviews/',
             'newsletter': '/api/newsletter/subscribe/',
+            'bookings': '/api/bookings/',
+            'booking_cancel': '/api/bookings/{id}/cancel/',
+            'exchange_rates': '/api/exchange-rates/',
         },
     })
+
+
+class SearchQuerySerializer(serializers.Serializer):
+    q = serializers.CharField(min_length=2, max_length=200)
+    limit = serializers.IntegerField(min_value=1, max_value=20, required=False, default=5)
 
 
 @api_view(['GET'])
 def global_search(request):
     """GET /api/search/?q=..."""
-    q = request.query_params.get('q', '').strip()
-    if len(q) < 2:
-        return Response({'success': False, 'error': 'Query must be at least 2 characters'}, status=400)
+    reject_unknown_query_params(request.query_params, {'q', 'limit'})
+    sq = SearchQuerySerializer(data=request.query_params.dict())
+    if not sq.is_valid():
+        return Response({'success': False, 'errors': sq.errors}, status=400)
 
+    q = sq.validated_data['q'].strip()
+    limit = sq.validated_data['limit']
     lang = get_lang(request)
     ctx = {'request': request, 'lang': lang}
-    limit = min(int(request.query_params.get('limit', 5)), 20)
 
     from django.db.models import Q
+    from django.db import connection
 
-    hotels = Hotel.objects.prefetch_related('images').filter(
-        Q(name__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
-    )[:limit]
-    attractions = Attraction.objects.prefetch_related('images').filter(
-        Q(name_uz__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
-    )[:limit]
-    events = Event.objects.filter(
-        Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
-        is_active=True,
-    )[:limit]
-    news = News.objects.filter(
-        Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
-        is_published=True,
-    )[:limit]
-    restaurants = Restaurant.objects.prefetch_related('images').filter(
-        Q(name__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
-    )[:limit]
-    tours = Tour.objects.filter(
-        Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
-        is_active=True,
-    )[:limit]
+    use_fts = connection.vendor == 'postgresql'
+
+    if use_fts:
+        from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+        sq = SearchQuery(q, config='simple')
+
+        hotels = Hotel.objects.prefetch_related('images').annotate(
+            rank=SearchRank(SearchVector('name', 'name_en', 'name_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+
+        attractions = Attraction.objects.prefetch_related('images').annotate(
+            rank=SearchRank(SearchVector('name_uz', 'name_en', 'name_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+
+        events = Event.objects.filter(is_active=True).annotate(
+            rank=SearchRank(SearchVector('title_uz', 'title_en', 'title_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+
+        news = News.objects.filter(is_published=True).annotate(
+            rank=SearchRank(SearchVector('title_uz', 'title_en', 'title_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+
+        restaurants = Restaurant.objects.prefetch_related('images').annotate(
+            rank=SearchRank(SearchVector('name', 'name_en', 'name_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+
+        tours = Tour.objects.filter(is_active=True).annotate(
+            rank=SearchRank(SearchVector('title_uz', 'title_en', 'title_ru', config='simple'), sq)
+        ).filter(rank__gt=0)[:limit]
+    else:
+        hotels = Hotel.objects.prefetch_related('images').filter(
+            Q(name__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
+        )[:limit]
+        attractions = Attraction.objects.prefetch_related('images').filter(
+            Q(name_uz__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
+        )[:limit]
+        events = Event.objects.filter(
+            Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
+            is_active=True,
+        )[:limit]
+        news = News.objects.filter(
+            Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
+            is_published=True,
+        )[:limit]
+        restaurants = Restaurant.objects.prefetch_related('images').filter(
+            Q(name__icontains=q) | Q(name_en__icontains=q) | Q(name_ru__icontains=q)
+        )[:limit]
+        tours = Tour.objects.filter(
+            Q(title_uz__icontains=q) | Q(title_en__icontains=q) | Q(title_ru__icontains=q),
+            is_active=True,
+        )[:limit]
 
     return Response({
         'success': True,
@@ -148,11 +190,11 @@ def global_search(request):
             'tours': TourListSerializer(tours, many=True, context=ctx).data,
         },
         'counts': {
-            'hotels': hotels.count(),
-            'attractions': attractions.count(),
-            'events': events.count(),
-            'news': news.count(),
-            'restaurants': restaurants.count(),
-            'tours': tours.count(),
+            'hotels': len(hotels),
+            'attractions': len(attractions),
+            'events': len(events),
+            'news': len(news),
+            'restaurants': len(restaurants),
+            'tours': len(tours),
         },
     })

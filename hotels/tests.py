@@ -211,3 +211,169 @@ class HotelImageConstraintTests(TestCase):
 
         with self.assertRaises(IntegrityError), transaction.atomic():
             HotelImage.objects.create(hotel=hotel, image='hotels/two.jpg', is_cover=True)
+
+
+class BookingTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from django.core.cache import cache
+        cache.clear()
+        User = get_user_model()
+        self.user = User.objects.create_user(email='test@test.com', password='testpass123')
+        self.hotel = create_hotel()
+        self.client = Client()
+        # Get JWT token
+        resp = self.client.post('/api/auth/login/', {'email': 'test@test.com', 'password': 'testpass123'}, content_type='application/json')
+        self.token = resp.json().get('access', '')
+
+    def test_create_booking(self):
+        resp = self.client.post(
+            '/api/bookings/',
+            {
+                'hotel': self.hotel.pk,
+                'check_in': '2026-06-01',
+                'check_out': '2026-06-03',
+                'guests': 2,
+                'guest_name': 'Test User',
+                'guest_phone': '+998901234567',
+            },
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {self.token}',
+        )
+        self.assertEqual(resp.status_code, 201)
+        data = resp.json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['data']['total_price'], self.hotel.price_per_night * 2)
+
+    def test_booking_requires_auth(self):
+        resp = self.client.post('/api/bookings/', {}, content_type='application/json')
+        self.assertEqual(resp.status_code, 401)
+
+    def test_list_bookings(self):
+        resp = self.client.get('/api/bookings/', HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_cancel_booking(self):
+        # Create a booking first
+        from hotels.models import Booking
+        booking = Booking.objects.create(
+            user=self.user, hotel=self.hotel,
+            check_in='2026-06-01', check_out='2026-06-03',
+            guests=1, total_price=700000,
+            guest_name='Test', guest_phone='+998901234567',
+        )
+        resp = self.client.patch(
+            f'/api/bookings/{booking.pk}/cancel/',
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {self.token}',
+        )
+        self.assertEqual(resp.status_code, 200)
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, 'cancelled')
+
+    def test_cancel_already_cancelled_returns_400(self):
+        from hotels.models import Booking
+        booking = Booking.objects.create(
+            user=self.user, hotel=self.hotel,
+            check_in='2026-06-01', check_out='2026-06-03',
+            guests=1, total_price=700000, status='cancelled',
+            guest_name='Test', guest_phone='+998901234567',
+        )
+        resp = self.client.patch(
+            f'/api/bookings/{booking.pk}/cancel/',
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {self.token}',
+        )
+        self.assertEqual(resp.status_code, 400)
+
+
+class BookingAvailabilityTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.user = User.objects.create_user(email='avail@test.com', password='testpass123')
+        self.hotel = create_hotel()
+        self.client = Client()
+
+    def test_availability_returns_true_when_no_bookings(self):
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/?check_in=2026-07-01&check_out=2026-07-03')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()['available'])
+
+    def test_availability_returns_false_when_conflict(self):
+        from hotels.models import Booking
+        Booking.objects.create(
+            user=self.user, hotel=self.hotel,
+            check_in='2026-07-01', check_out='2026-07-05',
+            guests=1, total_price=700000, status='confirmed',
+            guest_name='Test', guest_phone='+998901234567',
+        )
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/?check_in=2026-07-02&check_out=2026-07-04')
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.json()['available'])
+
+    def test_availability_requires_params(self):
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/')
+        self.assertEqual(resp.status_code, 400)
+
+    def test_availability_invalid_date_format(self):
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/?check_in=not-a-date&check_out=2026-07-03')
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn('Invalid date', resp.json()['error'])
+
+    def test_availability_check_out_before_check_in(self):
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/?check_in=2026-07-05&check_out=2026-07-01')
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn('after', resp.json()['error'])
+
+    def test_availability_cancelled_booking_not_conflict(self):
+        from hotels.models import Booking
+        Booking.objects.create(
+            user=self.user, hotel=self.hotel,
+            check_in='2026-07-01', check_out='2026-07-05',
+            guests=1, total_price=700000, status='cancelled',
+            guest_name='Test', guest_phone='+998901234567',
+        )
+        resp = self.client.get(f'/api/hotels/{self.hotel.pk}/availability/?check_in=2026-07-02&check_out=2026-07-04')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()['available'])
+
+    def test_availability_nonexistent_hotel(self):
+        resp = self.client.get('/api/hotels/99999/availability/?check_in=2026-07-01&check_out=2026-07-03')
+        self.assertEqual(resp.status_code, 404)
+
+
+class DoubleBookingPreventionTest(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from django.core.cache import cache
+        cache.clear()
+        User = get_user_model()
+        self.user = User.objects.create_user(email='dbl@test.com', password='testpass123')
+        self.hotel = create_hotel()
+        self.client = Client()
+        resp = self.client.post('/api/auth/login/', {'email': 'dbl@test.com', 'password': 'testpass123'}, content_type='application/json')
+        self.token = resp.json().get('access', '')
+
+    def test_double_booking_same_dates_rejected(self):
+        from hotels.models import Booking
+        Booking.objects.create(
+            user=self.user, hotel=self.hotel,
+            check_in='2026-08-01', check_out='2026-08-05',
+            guests=1, total_price=700000, status='confirmed',
+            guest_name='First', guest_phone='+998901234567',
+        )
+        resp = self.client.post(
+            '/api/bookings/',
+            {
+                'hotel': self.hotel.pk,
+                'check_in': '2026-08-02',
+                'check_out': '2026-08-04',
+                'guests': 1,
+                'guest_name': 'Second',
+                'guest_phone': '+998901234568',
+            },
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {self.token}',
+        )
+        self.assertEqual(resp.status_code, 400)

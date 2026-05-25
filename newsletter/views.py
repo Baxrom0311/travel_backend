@@ -1,6 +1,7 @@
 from rest_framework import serializers, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from django.utils import timezone
 from .models import NewsletterSubscription
 
@@ -11,7 +12,12 @@ class SubscribeSerializer(serializers.ModelSerializer):
         fields = ['email', 'language']
 
 
+class NewsletterThrottle(ScopedRateThrottle):
+    scope = 'newsletter'
+
+
 @api_view(['POST'])
+@throttle_classes([NewsletterThrottle])
 def subscribe(request):
     """POST /api/newsletter/subscribe/"""
     serializer = SubscribeSerializer(data=request.data)

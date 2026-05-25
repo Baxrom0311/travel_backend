@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Hotel, HotelImage, Amenity, ContactMessage
+from django.utils import timezone
+from .models import Hotel, HotelImage, Amenity, ContactMessage, Booking
 
 
 class AmenitySerializer(serializers.ModelSerializer):
@@ -83,7 +84,9 @@ class HotelListSerializer(serializers.ModelSerializer):
 
     def get_cover_image(self, obj):
         request = self.context.get('request')
-        img = obj.images.filter(is_cover=True).first() or obj.images.first()
+        imgs = obj.images.all()
+        cover = next((i for i in imgs if i.is_cover), None)
+        img = cover or (imgs[0] if imgs else None)
         if img and img.image and request:
             return request.build_absolute_uri(img.image.url)
         return None
@@ -131,3 +134,46 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         if len(v.strip()) < 10:
             raise serializers.ValidationError("Xabar kamida 10 ta belgi")
         return v.strip()
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    hotel_name = serializers.CharField(source='hotel.name', read_only=True)
+    nights = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            'id', 'hotel', 'hotel_name', 'check_in', 'check_out',
+            'guests', 'total_price', 'status', 'guest_name',
+            'guest_phone', 'notes', 'nights', 'created_at',
+        ]
+        read_only_fields = ['id', 'total_price', 'status', 'created_at']
+
+    def validate(self, attrs):
+        check_in = attrs.get('check_in')
+        check_out = attrs.get('check_out')
+        if check_in and check_out:
+            if check_in >= check_out:
+                raise serializers.ValidationError({'check_out': "Chiqish sanasi kirish sanasidan keyin bo'lishi kerak."})
+            if check_in < timezone.now().date():
+                raise serializers.ValidationError({'check_in': "O'tgan sanaga bron qilib bo'lmaydi."})
+        return attrs
+
+    def create(self, validated_data):
+        from django.db import transaction
+        hotel = validated_data['hotel']
+        nights = (validated_data['check_out'] - validated_data['check_in']).days
+        validated_data['total_price'] = hotel.price_per_night * nights
+
+        with transaction.atomic():
+            # Lock the hotel row to prevent double-booking race condition
+            Hotel.objects.select_for_update().get(pk=hotel.pk)
+            conflicting = Booking.objects.filter(
+                hotel=hotel,
+                status__in=('pending', 'confirmed'),
+                check_in__lt=validated_data['check_out'],
+                check_out__gt=validated_data['check_in'],
+            ).exists()
+            if conflicting:
+                raise serializers.ValidationError({'check_in': "Bu sanalar band."})
+            return super().create(validated_data)

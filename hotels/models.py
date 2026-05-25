@@ -147,3 +147,48 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.created_at.strftime('%d.%m.%Y %H:%M')}"
+
+
+class Booking(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Kutilmoqda'),
+        ('confirmed', 'Tasdiqlangan'),
+        ('cancelled', 'Bekor qilingan'),
+        ('completed', 'Yakunlangan'),
+    ]
+
+    user = models.ForeignKey(
+        'users.User', on_delete=models.CASCADE, related_name='bookings',
+        verbose_name="Foydalanuvchi",
+    )
+    hotel = models.ForeignKey(
+        Hotel, on_delete=models.CASCADE, related_name='bookings',
+        verbose_name="Mehmonxona",
+    )
+    check_in = models.DateField(verbose_name="Kirish sanasi")
+    check_out = models.DateField(verbose_name="Chiqish sanasi")
+    guests = models.PositiveSmallIntegerField(default=1, verbose_name="Mehmonlar soni")
+    total_price = models.PositiveIntegerField(verbose_name="Umumiy narx (UZS)")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    guest_name = models.CharField(max_length=200, verbose_name="Mehmon ismi")
+    guest_phone = models.CharField(max_length=20, verbose_name="Telefon")
+    notes = models.TextField(blank=True, verbose_name="Izoh")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Bron"
+        verbose_name_plural = "Bronlar"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at'], name='booking_user_created_idx'),
+            models.Index(fields=['hotel', 'check_in'], name='booking_hotel_checkin_idx'),
+            models.Index(fields=['status'], name='booking_status_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.guest_name} → {self.hotel.name} ({self.check_in}–{self.check_out})"
+
+    @property
+    def nights(self):
+        return (self.check_out - self.check_in).days

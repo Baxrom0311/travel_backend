@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from utils.lang import LangMixin
+from utils.cache import PublicCacheMixin
 from utils.query_params import reject_unknown_query_params
 from .models import Event
 from .serializers import EventListSerializer, EventDetailSerializer
@@ -15,9 +16,13 @@ class EventFilterSerializer(serializers.Serializer):
     upcoming = serializers.BooleanField(required=False)
     search = serializers.CharField(max_length=100, required=False)
     is_free = serializers.BooleanField(required=False)
+    ordering = serializers.ChoiceField(
+        choices=['start_date', '-start_date', 'title_uz', '-title_uz'],
+        required=False,
+    )
 
 
-class EventListView(LangMixin, generics.ListAPIView):
+class EventListView(PublicCacheMixin, LangMixin, generics.ListAPIView):
     """GET /api/events/"""
     serializer_class = EventListSerializer
 
@@ -25,7 +30,7 @@ class EventListView(LangMixin, generics.ListAPIView):
         qs = Event.objects.filter(is_active=True).prefetch_related('images')
         reject_unknown_query_params(
             self.request.query_params,
-            {'featured', 'upcoming', 'search', 'is_free'}
+            {'featured', 'upcoming', 'search', 'is_free', 'ordering'}
         )
         filters = EventFilterSerializer(data=self.request.query_params.dict())
         filters.is_valid(raise_exception=True)
@@ -44,7 +49,7 @@ class EventListView(LangMixin, generics.ListAPIView):
         if 'is_free' in params:
             qs = qs.filter(is_free=params['is_free'])
 
-        return qs.order_by('start_date')
+        return qs.order_by(params.get('ordering', 'start_date'))
 
 
 class EventDetailView(LangMixin, generics.RetrieveAPIView):
@@ -55,6 +60,7 @@ class EventDetailView(LangMixin, generics.RetrieveAPIView):
 @api_view(['GET'])
 def event_options(request):
     """GET /api/events/options/"""
+    reject_unknown_query_params(request.query_params, set())
     from django.db.models import Count
     return Response({
         'success': True,

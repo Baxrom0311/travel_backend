@@ -46,12 +46,12 @@ class AttractionListSerializer(serializers.ModelSerializer):
         return getattr(obj, f'description_{lang}', '') or obj.description_uz
 
     def get_cover_image(self, obj):
-        cover = obj.cover_image
-        if cover:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(cover.image.url)
-            return cover.image.url
+        request = self.context.get('request')
+        imgs = obj.images.all()
+        cover = next((i for i in imgs if i.is_cover), None)
+        img = cover or (imgs[0] if imgs else None)
+        if img and img.image and request:
+            return request.build_absolute_uri(img.image.url)
         return None
 
 
@@ -91,12 +91,12 @@ class AttractionDetailSerializer(serializers.ModelSerializer):
         return getattr(obj, f'history_{lang}', '') or obj.history_uz
 
     def get_cover_image(self, obj):
-        cover = obj.cover_image
-        if cover:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(cover.image.url)
-            return cover.image.url
+        request = self.context.get('request')
+        imgs = obj.images.all()
+        cover = next((i for i in imgs if i.is_cover), None)
+        img = cover or (imgs[0] if imgs else None)
+        if img and img.image and request:
+            return request.build_absolute_uri(img.image.url)
         return None
 
     def get_images(self, obj):

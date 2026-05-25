@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Count, Q
 
 from utils.lang import LangMixin
+from utils.cache import PublicCacheMixin
 from utils.query_params import reject_unknown_query_params
 from .models import Attraction
 from .serializers import AttractionListSerializer, AttractionDetailSerializer
@@ -14,7 +15,7 @@ class AttractionFilterSerializer(serializers.Serializer):
     search = serializers.CharField(max_length=100, required=False)
 
 
-class AttractionListView(LangMixin, generics.ListAPIView):
+class AttractionListView(PublicCacheMixin, LangMixin, generics.ListAPIView):
     """GET /api/attractions/"""
     serializer_class = AttractionListSerializer
 
@@ -43,6 +44,7 @@ class AttractionDetailView(LangMixin, generics.RetrieveAPIView):
 
 @api_view(['GET'])
 def attraction_options(request):
+    reject_unknown_query_params(request.query_params, set())
     counts = Attraction.objects.aggregate(
         total=Count('id'),
         featured=Count('id', filter=Q(is_featured=True)),

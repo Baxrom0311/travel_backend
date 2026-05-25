@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     # Third party
     'rest_framework',
     'rest_framework_simplejwt',
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     'newsletter',
     'settings_app',
     'testimonials',
+    'exchange_rates',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -228,6 +230,8 @@ REST_FRAMEWORK = {
         'contact': config('CONTACT_THROTTLE_RATE', default='5/hour'),
         'login': config('LOGIN_THROTTLE_RATE', default='10/hour'),
         'register': config('REGISTER_THROTTLE_RATE', default='5/hour'),
+        'newsletter': '3/hour',
+        'reviews': '10/hour',
     },
 }
 
@@ -266,6 +270,13 @@ X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
 
+# HSTS (only in production)
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+
 # Render proxies requests via HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -298,3 +309,18 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 # Admin
 # ═══════════════════════════════════════════════════════════════
 ADMIN_SITE_HEADER = "Visit Khorezm — Admin"
+
+# ═══════════════════════════════════════════════════════════════
+# EMAIL (console backend for dev, SMTP for production)
+# ═══════════════════════════════════════════════════════════════
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@visitkhorezm.uz')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@visitkhorezm.uz')

@@ -21,6 +21,7 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_scope = 'register'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -43,6 +44,7 @@ class RegisterView(generics.CreateAPIView):
 class MyTokenObtainPairView(TokenObtainPairView):
     """POST /api/auth/login/ - returns access + refresh tokens + user info."""
     serializer_class = MyTokenObtainPairSerializer
+    throttle_scope = 'login'
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -100,6 +102,9 @@ class FavoriteDeleteView(generics.DestroyAPIView):
         return UserFavorite.objects.filter(user=self.request.user)
 
 
+VALID_FAVORITE_TYPES = {t[0] for t in UserFavorite.FAVORITE_TYPES}
+
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def toggle_favorite(request):
@@ -112,6 +117,17 @@ def toggle_favorite(request):
             {'success': False, 'error': 'favorite_type and object_id required'},
             status=400,
         )
+
+    if favorite_type not in VALID_FAVORITE_TYPES:
+        return Response(
+            {'success': False, 'error': f"Invalid favorite_type. Must be one of: {', '.join(sorted(VALID_FAVORITE_TYPES))}"},
+            status=400,
+        )
+
+    try:
+        object_id = int(object_id)
+    except (ValueError, TypeError):
+        return Response({'success': False, 'error': 'object_id must be an integer'}, status=400)
 
     fav, created = UserFavorite.objects.get_or_create(
         user=request.user,
